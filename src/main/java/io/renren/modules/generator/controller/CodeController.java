@@ -13,8 +13,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.renren.modules.generator.entity.CodeEntity;
 import io.renren.modules.generator.service.CodeService;
-import io.renren.common.utils.PageUtils;
-import io.renren.common.utils.R;
 
 
 
@@ -31,60 +29,60 @@ public class CodeController {
     @Autowired
     private CodeService codeService;
 
-    /**
-     * 列表
-     */
-    @RequestMapping("/list")
-    @RequiresPermissions("generator:code:list")
-    public R list(@RequestParam Map<String, Object> params){
-        PageUtils page = codeService.queryPage(params);
-
-        return R.ok().put("page", page);
-    }
-
-
-    /**
-     * 信息
-     */
-    @RequestMapping("/info/{id}")
-    @RequiresPermissions("generator:code:info")
-    public R info(@PathVariable("id") Integer id){
-			CodeEntity code = codeService.selectById(id);
-
-        return R.ok().put("code", code);
-    }
-
-    /**
-     * 保存
-     */
-    @RequestMapping("/save")
-    @RequiresPermissions("generator:code:save")
-    public R save(@RequestBody CodeEntity code){
-			codeService.insert(code);
-
-        return R.ok();
-    }
-
-    /**
-     * 修改
-     */
-    @RequestMapping("/update")
-    @RequiresPermissions("generator:code:update")
-    public R update(@RequestBody CodeEntity code){
-			codeService.updateById(code);
-
-        return R.ok();
-    }
-
-    /**
-     * 删除
-     */
-    @RequestMapping("/delete")
-    @RequiresPermissions("generator:code:delete")
-    public R delete(@RequestBody Integer[] ids){
-			codeService.deleteBatchIds(Arrays.asList(ids));
-
-        return R.ok();
-    }
+//    /**
+//     * 列表
+//     */
+//    @RequestMapping("/list")
+//    @RequiresPermissions("generator:code:list")
+//    public R list(@RequestParam Map<String, Object> params){
+//        PageUtils page = codeService.queryPage(params);
+//
+//        return R.ok().put("page", page);
+//    }
+//
+//
+//    /**
+//     * 信息
+//     */
+//    @RequestMapping("/info/{id}")
+//    @RequiresPermissions("generator:code:info")
+//    public R info(@PathVariable("id") Integer id){
+//			CodeEntity code = codeService.selectById(id);
+//
+//        return R.ok().put("code", code);
+//    }
+//
+//    /**
+//     * 保存
+//     */
+//    @RequestMapping("/save")
+//    @RequiresPermissions("generator:code:save")
+//    public R save(@RequestBody CodeEntity code){
+//			codeService.insert(code);
+//
+//        return R.ok();
+//    }
+//
+//    /**
+//     * 修改
+//     */
+//    @RequestMapping("/update")
+//    @RequiresPermissions("generator:code:update")
+//    public R update(@RequestBody CodeEntity code){
+//			codeService.updateById(code);
+//
+//        return R.ok();
+//    }
+//
+//    /**
+//     * 删除
+//     */
+//    @RequestMapping("/delete")
+//    @RequiresPermissions("generator:code:delete")
+//    public R delete(@RequestBody Integer[] ids){
+//			codeService.deleteBatchIds(Arrays.asList(ids));
+//
+//        return R.ok();
+//    }
 
 }

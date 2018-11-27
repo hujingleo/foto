@@ -1,7 +1,6 @@
 package io.renren.modules.generator.service;
 
 import com.baomidou.mybatisplus.service.IService;
-import io.renren.common.utils.PageUtils;
 import io.renren.modules.generator.entity.UserEntity;
 
 import java.util.Map;
@@ -15,6 +14,5 @@ import java.util.Map;
  */
 public interface UserService extends IService<UserEntity> {
 
-    PageUtils queryPage(Map<String, Object> params);
 }
 

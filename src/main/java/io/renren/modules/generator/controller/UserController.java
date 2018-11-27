@@ -1,8 +1,14 @@
 package io.renren.modules.generator.controller;
 
+import java.sql.Time;
+import java.sql.Wrapper;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Map;
 
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import io.renren.modules.generator.utils.BaseResp;
+import io.renren.modules.generator.utils.JWTUtil;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,9 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.renren.modules.generator.entity.UserEntity;
 import io.renren.modules.generator.service.UserService;
-import io.renren.common.utils.PageUtils;
-import io.renren.common.utils.R;
 
+import javax.servlet.http.HttpServletRequest;
 
 
 /**
@@ -26,65 +31,107 @@ import io.renren.common.utils.R;
  * @date 2018-11-27 09:51:20
  */
 @RestController
-@RequestMapping("generator/user")
+@RequestMapping("/user")
 public class UserController {
     @Autowired
     private UserService userService;
 
+//    /**
+//     * 列表
+//     */
+//    @RequestMapping("/list")
+//    @RequiresPermissions("generator:user:list")
+//    public R list(@RequestParam Map<String, Object> params){
+//        PageUtils page = userService.queryPage(params);
+//
+//        return R.ok().put("page", page);
+//    }
+//
+//
     /**
-     * 列表
+     * 查找用户信息
      */
-    @RequestMapping("/list")
-    @RequiresPermissions("generator:user:list")
-    public R list(@RequestParam Map<String, Object> params){
-        PageUtils page = userService.queryPage(params);
+    @RequestMapping("/info}")
+    public BaseResp info(String username){
 
-        return R.ok().put("page", page);
+        UserEntity userEntity = userService.selectOne(new EntityWrapper<UserEntity>().eq("username",username));
+
+        if(null == userEntity){
+            BaseResp.error("没有该用户");
+        }
+
+        return BaseResp.ok(userEntity);
     }
 
-
     /**
-     * 信息
-     */
-    @RequestMapping("/info/{id}")
-    @RequiresPermissions("generator:user:info")
-    public R info(@PathVariable("id") Integer id){
-			UserEntity user = userService.selectById(id);
-
-        return R.ok().put("user", user);
-    }
-
-    /**
-     * 保存
+     * 增加注册用户
      */
     @RequestMapping("/save")
-    @RequiresPermissions("generator:user:save")
-    public R save(@RequestBody UserEntity user){
-			userService.insert(user);
+    public BaseResp save(String username, String password, String nickname, String avatarUrl, String personalProfile){
 
-        return R.ok();
+        UserEntity userEntity = new UserEntity();
+
+        userEntity.setUsername(username);
+
+        userEntity.setPassword(password);
+
+        userEntity.setNickname(nickname);
+
+        userEntity.setAvatarUrl(avatarUrl);
+
+        userEntity.setPersonalProfile(personalProfile);
+
+        userEntity.setCreatedTime(new Date());
+
+        userService.insert(userEntity);
+
+        boolean result =  userService.insert(userEntity);
+
+        if (!result){
+            return BaseResp.error("增加用户失败");
+        }
+
+        return BaseResp.ok("增加用户成功");
     }
 
     /**
-     * 修改
+     * 更新用户信息
      */
     @RequestMapping("/update")
-    @RequiresPermissions("generator:user:update")
-    public R update(@RequestBody UserEntity user){
-			userService.updateById(user);
+    public BaseResp update(String username, String nickname, String avatarUrl, String personalProfile){
 
-        return R.ok();
+        UserEntity userEntity = userService.selectOne(new EntityWrapper<UserEntity>().eq("username",username));
+
+        userEntity.setNickname(nickname);
+
+        userEntity.setAvatarUrl(avatarUrl);
+
+        userEntity.setPersonalProfile(personalProfile);
+
+        userEntity.setUpdatedTime(new Date());
+
+        boolean result =  userService.update(userEntity,new EntityWrapper<UserEntity>().eq("username",username));
+
+        if (!result){
+            return BaseResp.error("更新用户信息失败");
+        }
+
+        return BaseResp.ok("更新用户信息成功");
     }
 
     /**
-     * 删除
+     * 删除用户
      */
     @RequestMapping("/delete")
-    @RequiresPermissions("generator:user:delete")
-    public R delete(@RequestBody Integer[] ids){
-			userService.deleteBatchIds(Arrays.asList(ids));
+    public BaseResp delete(String username){
 
-        return R.ok();
+        boolean result = userService.delete(new EntityWrapper<UserEntity>().eq("username",username));
+
+        if(!result){
+            return BaseResp.error("删除失败");
+        }
+
+        return BaseResp.ok("删除用户成功");
     }
 
 }
