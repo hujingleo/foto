@@ -24,10 +24,10 @@ public class JWTUtil {
     public static boolean verify(HttpServletRequest request) {
         try {
             String token=request.getHeader("token");
-            String open_id = JWT.decode(token).getClaim("openId").asString();
+            String username = JWT.decode(token).getClaim("username").asString();
             Algorithm algorithm = Algorithm.HMAC256(secret);
             JWTVerifier verifier = JWT.require(algorithm)
-                    .withClaim("openId", open_id)
+                    .withClaim("username", username)
                     .build();
             DecodedJWT jwt = verifier.verify(token);
             return true;
@@ -49,7 +49,6 @@ public class JWTUtil {
             return null;
         }
     }
-
     /**
      * 获得token中的信息无需secret解密也能获得
      * @return token中包含的用户名
@@ -57,6 +56,18 @@ public class JWTUtil {
     public static String getCurrentUsername(HttpServletRequest request) {
         try {
             String token=request.getHeader("token");
+            if (StringTools.isNullOrEmpty(token)){
+                return null;
+            }
+            DecodedJWT jwt = JWT.decode(token);
+            return jwt.getClaim("username").asString();
+        } catch (JWTDecodeException e) {
+            return null;
+        }
+    }
+    public static String getCurrentUsernameByToken(String token) {
+        try {
+            //String token=request.getHeader("token");
             DecodedJWT jwt = JWT.decode(token);
             return jwt.getClaim("username").asString();
         } catch (JWTDecodeException e) {
@@ -64,35 +75,10 @@ public class JWTUtil {
         }
     }
     /**
-     * 获得token中的信息无需secret解密也能获得
-     * @return token中包含的用户名
-     */
-    public static String getCurrentUserOpenId(HttpServletRequest request) {
-        try {
-            String token=request.getHeader("token");
-            if (StringTools.isNullOrEmpty(token)){
-                return null;
-            }
-            DecodedJWT jwt = JWT.decode(token);
-            return jwt.getClaim("openId").asString();
-        } catch (JWTDecodeException e) {
-            return null;
-        }
-    }
-    public static String getCurrentUserOpenIdByToken(String token) {
-        try {
-            //String token=request.getHeader("token");
-            DecodedJWT jwt = JWT.decode(token);
-            return jwt.getClaim("openId").asString();
-        } catch (JWTDecodeException e) {
-            return null;
-        }
-    }
-    /**
-     * @param openId 用户名
+     * @param username 用户名
      * @return 加密的token
      */
-    public static String sign(String openId) {
+    public static String sign(String username) {
         try {
             Calendar calendar = Calendar.getInstance();
             Date date = new Date(System.currentTimeMillis());
@@ -104,7 +90,7 @@ public class JWTUtil {
             Algorithm algorithm = Algorithm.HMAC256(secret);
             // 附带username信息
             return JWT.create()
-                    .withClaim("openId", openId)
+                    .withClaim("username", username)
                     .withExpiresAt(date)
                     .sign(algorithm);
         } catch (UnsupportedEncodingException e) {
