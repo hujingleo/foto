@@ -3,6 +3,8 @@ package io.renren.modules.generator.controller;
 import java.util.Arrays;
 import java.util.Map;
 
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import io.renren.modules.generator.utils.BaseResp;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -29,16 +31,32 @@ public class CodeController {
     @Autowired
     private CodeService codeService;
 
-//    /**
-//     * 列表
-//     */
-//    @RequestMapping("/list")
-//    @RequiresPermissions("generator:code:list")
-//    public R list(@RequestParam Map<String, Object> params){
-//        PageUtils page = codeService.queryPage(params);
-//
-//        return R.ok().put("page", page);
-//    }
+    /**
+     * 发送邮箱验证码
+     */
+    @RequestMapping("/sendcode")
+    public BaseResp send(String username){
+
+
+
+        return BaseResp.ok("发送成功");
+    }
+
+    /**
+     * 校对邮箱验证码
+     */
+    @RequestMapping("/verifycode")
+    public BaseResp verify(String username,String emailcode){
+
+        CodeEntity codeEntity = codeService.selectOne(new EntityWrapper<CodeEntity>().eq("username",username));
+
+        if (codeEntity.getEmailCode() != emailcode){
+            return BaseResp.ok("验证失败");
+        }
+
+        return BaseResp.ok("验证成功");
+    }
+
 //
 //
 //    /**
