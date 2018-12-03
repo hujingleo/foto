@@ -37,6 +37,10 @@ public class UserEntity implements Serializable {
 	/**
 	 * 
 	 */
+	private int gender;
+	/**
+	 *
+	 */
 	private String avatarUrl;
 	/**
 	 * 个人简介
@@ -98,6 +102,18 @@ public class UserEntity implements Serializable {
 	 */
 	public String getNickname() {
 		return nickname;
+	}
+	/**
+	 * 设置：
+	 */
+	public void setGender(int gender) {
+		this.gender = gender;
+	}
+	/**
+	 * 获取：
+	 */
+	public int getGender() {
+		return gender;
 	}
 	/**
 	 * 设置：

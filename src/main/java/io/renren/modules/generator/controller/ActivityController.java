@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Map;
 
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import io.renren.modules.generator.utils.BaseResp;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,19 +77,63 @@ public class ActivityController {
             BaseResp.error("新增活动失败");
         }
 
-        return BaseResp.ok();
+        return BaseResp.ok("新增活动成功");
     }
-//
-//    /**
-//     * 修改
-//     */
-//    @RequestMapping("/update")
-//    @RequiresPermissions("generator:activity:update")
-//    public R update(@RequestBody ActivityEntity activity){
-//			activityService.updateById(activity);
-//
-//        return R.ok();
-//    }
+
+    /**
+     * 查找活动信息
+     */
+    @RequestMapping("/info")
+    public BaseResp info(int id){
+
+        ActivityEntity activity = activityService.selectById(id);
+
+        if(activity == null){
+            BaseResp.error("查找活动失败");
+        }
+
+        return BaseResp.ok(activity);
+    }
+
+    /**
+     * 更改活动信息
+     */
+    @RequestMapping("/updateactivity")
+    public BaseResp update(int id,String creator,String activityTitle,String activityContent){
+
+        ActivityEntity activity = activityService.selectById(id);
+
+        activity.setCreator(creator);
+
+        activity.setActivityTitle(activityTitle);
+
+        activity.setActivityContent(activityContent);
+
+        activity.setUpdatedTime(new Date());
+
+        boolean result = activityService.update(activity,new EntityWrapper<ActivityEntity>().eq("id",id));
+
+        if(!result){
+            BaseResp.error("更新活动信息失败");
+        }
+
+        return BaseResp.ok("更新活动信息成功");
+    }
+
+    /**
+     * 删除活动
+     */
+    @RequestMapping("/deleteactivity")
+    public BaseResp delete(int id){
+
+        boolean result = activityService.delete(new EntityWrapper<ActivityEntity>().eq("id",id));
+
+        if(!result){
+            BaseResp.error("更新活动信息失败");
+        }
+
+        return BaseResp.ok("更新活动信息成功");
+    }
 //
 //    /**
 //     * 删除

@@ -1,8 +1,12 @@
 package io.renren.modules.generator.controller;
 
 import java.util.Arrays;
+import java.util.Date;
 import java.util.Map;
 
+import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import io.renren.modules.generator.entity.UserEntity;
+import io.renren.modules.generator.utils.BaseResp;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,10 +28,61 @@ import io.renren.modules.generator.service.UserDataService;
  * @date 2018-11-27 09:51:20
  */
 @RestController
-@RequestMapping("generator/userdata")
+@RequestMapping("/userdata")
 public class UserDataController {
     @Autowired
     private UserDataService userDataService;
+
+
+    /**
+     * 新增用户信息
+     */
+    @RequestMapping("/saveuserdata")
+    public BaseResp save(String username, String dataType, String dataTitle, String dataContent){
+
+        UserDataEntity userDataEntity = new UserDataEntity();
+
+        userDataEntity.setDataType(dataType);
+
+        userDataEntity.setDataTitle(dataTitle);
+
+        userDataEntity.setDataContent(dataContent);
+
+        userDataEntity.setCreatedTime(new Date());
+
+        boolean result =  userDataService.insert(userDataEntity);
+
+        if (!result){
+            return BaseResp.error("更新用户信息失败");
+        }
+
+        return BaseResp.ok("更新用户信息成功");
+    }
+
+    /**
+     * 更新用户信息
+     */
+    @RequestMapping("/update")
+    public BaseResp update(String username, String dataType, String dataTitle, String dataContent){
+
+        UserDataEntity userDataEntity = userDataService.selectOne(new EntityWrapper<UserDataEntity>().eq("username",username));
+
+        userDataEntity.setDataType(dataType);
+
+        userDataEntity.setDataTitle(dataTitle);
+
+        userDataEntity.setDataContent(dataContent);
+
+        userDataEntity.setUpdatedTime(new Date());
+
+        boolean result =  userDataService.update(userDataEntity,new EntityWrapper<UserDataEntity>().eq("username",username));
+
+        if (!result){
+            return BaseResp.error("更新用户信息失败");
+        }
+
+        return BaseResp.ok("更新用户信息成功");
+    }
 
 //    /**
 //     * 列表

@@ -51,7 +51,7 @@ public class UserController {
     /**
      * 查找用户信息
      */
-    @RequestMapping("/info}")
+    @RequestMapping("/info")
     public BaseResp info(String username){
 
         UserEntity userEntity = userService.selectOne(new EntityWrapper<UserEntity>().eq("username",username));
@@ -128,7 +128,7 @@ public class UserController {
         boolean result = userService.delete(new EntityWrapper<UserEntity>().eq("username",username));
 
         if(!result){
-            return BaseResp.error("删除失败");
+            return BaseResp.error("删除用户失败");
         }
 
         return BaseResp.ok("删除用户成功");

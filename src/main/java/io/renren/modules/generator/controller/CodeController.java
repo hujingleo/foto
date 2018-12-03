@@ -1,10 +1,14 @@
 package io.renren.modules.generator.controller;
 
+import java.text.DateFormat;
 import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import io.renren.modules.generator.utils.BaseResp;
+import io.renren.modules.generator.utils.MailUtil;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.renren.modules.generator.entity.CodeEntity;
 import io.renren.modules.generator.service.CodeService;
 
+import javax.mail.MessagingException;
 
 
 /**
@@ -26,7 +31,7 @@ import io.renren.modules.generator.service.CodeService;
  * @date 2018-11-27 09:51:20
  */
 @RestController
-@RequestMapping("generator/code")
+@RequestMapping("/code")
 public class CodeController {
     @Autowired
     private CodeService codeService;
@@ -35,11 +40,41 @@ public class CodeController {
      * 发送邮箱验证码
      */
     @RequestMapping("/sendcode")
-    public BaseResp send(String username){
+    public BaseResp send(String username) throws MessagingException {
 
+        String emailcode = MailUtil.sendMail(username);
 
+        CodeEntity codeEntity = codeService.selectOne(new EntityWrapper<CodeEntity>().eq("username",username));
 
-        return BaseResp.ok("发送成功");
+        if(codeEntity != null){
+
+            codeEntity.setEmailCode(emailcode);
+
+            codeEntity.setCreatedTime(new Date());
+
+            boolean result = codeService.update(codeEntity,new EntityWrapper<CodeEntity>().eq("username",username));
+
+            if (!result){
+                return BaseResp.error("发送验证码失败");
+            }
+            return BaseResp.ok("发送验证码成功");
+        }
+
+        CodeEntity entity = new CodeEntity();
+
+        entity.setUsername(username);
+
+        entity.setEmailCode(emailcode);
+
+        entity.setCreatedTime(new Date());
+
+        boolean result = codeService.insert(entity);
+
+        if(!result){
+            BaseResp.error("发送验证码失败");
+        }
+
+        return BaseResp.ok("发送验证码成功");
     }
 
     /**
@@ -51,11 +86,15 @@ public class CodeController {
         CodeEntity codeEntity = codeService.selectOne(new EntityWrapper<CodeEntity>().eq("username",username));
 
         if (codeEntity.getEmailCode() != emailcode){
-            return BaseResp.ok("验证失败");
+            return BaseResp.error("验证码错误");
         }
+
+
 
         return BaseResp.ok("验证成功");
     }
+
+
 
 //
 //
