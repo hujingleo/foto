@@ -33,9 +33,13 @@ public class UserEntity implements Serializable {
 	/**
 	 * 
 	 */
-	private String nickname;
+	private String firstName;
 	/**
 	 * 
+	 */
+	private String lastName;
+	/**
+	 *
 	 */
 	private Integer gender;
 	/**
@@ -94,14 +98,26 @@ public class UserEntity implements Serializable {
 	/**
 	 * 设置：
 	 */
-	public void setNickname(String nickname) {
-		this.nickname = nickname;
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
 	}
 	/**
 	 * 获取：
 	 */
-	public String getNickname() {
-		return nickname;
+	public String getFirstName() {
+		return firstName;
+	}
+	/**
+	 * 设置：
+	 */
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
+	/**
+	 * 获取：
+	 */
+	public String getLastName() {
+		return lastName;
 	}
 	/**
 	 * 设置：

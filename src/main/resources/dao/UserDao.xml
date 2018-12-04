@@ -3,12 +3,13 @@
 
 <mapper namespace="io.renren.modules.generator.dao.UserDao">
 
-	<!-- 可根据自己的需求，是否要使用 -->
+    <!-- 可根据自己的需求，是否要使用 -->
     <resultMap type="io.renren.modules.generator.entity.UserEntity" id="userMap">
         <result property="id" column="id"/>
         <result property="username" column="username"/>
         <result property="password" column="password"/>
-        <result property="nickname" column="nickname"/>
+        <result property="firstName" column="first_name"/>
+        <result property="lastName" column="last_name"/>
         <result property="gender" column="gender"/>
         <result property="avatarUrl" column="avatar_url"/>
         <result property="personalProfile" column="personal_profile"/>
@@ -16,5 +17,25 @@
         <result property="updatedTime" column="updated_time"/>
     </resultMap>
 
-
+    <update id="updateUser" parameterType="io.renren.modules.generator.entity.UserEntity">
+        update tb_user
+        <set>
+            <if test="firstName!=null and firstName!=''">
+                first_name=#{firstName},
+            </if>
+            <if test="lastName!=null and lastName!=''">
+                last_name=#{lastName},
+            </if>
+            <if test="gender!=null and gender!=''">
+                gender=#{gender},
+            </if>
+            <if test="avatarUrl!=null and avatarUrl!=''">
+                avatarUrl=#{avatarUrl},
+            </if>
+            <if test="personalProfile!=null and personalProfile!=''">
+                personal_profile=#{personalProfile}
+            </if>
+        </set>
+        where username=#{username}
+    </update>
 </mapper>

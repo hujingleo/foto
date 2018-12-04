@@ -68,7 +68,7 @@ public class UserController {
      * 增加注册用户
      */
     @RequestMapping("/saveUser")
-    public BaseResp saveUser(String username, String emailcode,String password, String nickname,Integer gender, String avatarUrl, String personalProfile){
+    public BaseResp saveUser(String username, String emailcode,String password, String firstName,String lastName,Integer gender,String personalProfile){
 
         if (StringTools.isNullOrEmpty(username)){
             return BaseResp.error("邮箱不能为空");
@@ -79,15 +79,16 @@ public class UserController {
         if (StringTools.isNullOrEmpty(password)){
             return BaseResp.error("密码不能为空");
         }
-        if (StringTools.isNullOrEmpty(nickname)){
-            return BaseResp.error("邮箱不能为空");
+        if (StringTools.isNullOrEmpty(firstName)){
+            return BaseResp.error("名字不能为空");
+        }
+        if (StringTools.isNullOrEmpty(lastName)){
+            return BaseResp.error("姓氏不能为空");
         }
         if (gender==null){
             return BaseResp.error("性别不能为空");
         }
-        if (StringTools.isNullOrEmpty(avatarUrl)){
-            return BaseResp.error("头像不能为空");
-        }
+
         CodeEntity codeEntity = codeService.selectOne(new EntityWrapper<CodeEntity>().eq("username",username));
 
         if(codeEntity == null){
@@ -120,11 +121,11 @@ public class UserController {
 
         userEntity.setPassword(password);
 
-        userEntity.setNickname(nickname);
+        userEntity.setFirstName(firstName);
+
+        userEntity.setLastName(lastName);
 
         userEntity.setGender(gender);
-
-        userEntity.setAvatarUrl(avatarUrl);
 
         userEntity.setPersonalProfile(personalProfile);
 
@@ -144,35 +145,35 @@ public class UserController {
      */
     @RequestMapping("/updateUser")
     @RequiresAuthentication
-    public BaseResp updateUser(HttpServletRequest request, String nickname, Integer gender,String avatarUrl, String personalProfile){
+    public BaseResp updateUser(HttpServletRequest request,@RequestBody UserEntity userEntity){
+        if (null == userEntity){
+            return BaseResp.error("数据为空");
+        }
         String username = JWTUtil.getCurrentUsername(request);
-        if (StringTools.isNullOrEmpty(nickname)){
-            return BaseResp.error("姓名不能为空");
+            userEntity.setUsername(username);
+          int result =userService.updateUser(userEntity);
+
+//        userEntity.setNickname(nickname);
+//
+//        userEntity.setGender(gender);
+//
+//        userEntity.setAvatarUrl(avatarUrl);
+//
+//        userEntity.setPersonalProfile(personalProfile);
+//
+//        userEntity.setUpdatedTime(new Date());
+
+//        boolean result =  userService.update(userEntity,new EntityWrapper<UserEntity>().eq("username",username));
+//
+//        if (!result){
+//            return BaseResp.error("更新用户信息失败");
+//        }
+//
+//        return BaseResp.ok("更新用户信息成功");
+        if (result==1){
+            return BaseResp.ok("更新用户信息成功");
         }
-        if (gender==null){
-            return BaseResp.error("性别不能为空");
-        }
-        if (StringTools.isNullOrEmpty(avatarUrl)){
-            return BaseResp.error("头像不能为空");
-        }
-
-        UserEntity userEntity = userService.selectOne(new EntityWrapper<UserEntity>().eq("username",username));
-
-        userEntity.setNickname(nickname);
-
-        userEntity.setAvatarUrl(avatarUrl);
-
-        userEntity.setPersonalProfile(personalProfile);
-
-        userEntity.setUpdatedTime(new Date());
-
-        boolean result =  userService.update(userEntity,new EntityWrapper<UserEntity>().eq("username",username));
-
-        if (!result){
-            return BaseResp.error("更新用户信息失败");
-        }
-
-        return BaseResp.ok("更新用户信息成功");
+        return BaseResp.error("更新用户信息失败");
     }
 
     /**

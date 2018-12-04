@@ -15,4 +15,13 @@ import io.renren.modules.generator.service.UserService;
 @Service("userService")
 public class UserServiceImpl extends ServiceImpl<UserDao, UserEntity> implements UserService {
 
+    @Override
+    public int updateUser (UserEntity userEntity){
+
+        int result = baseMapper.updateUser(userEntity);
+
+        return result;
+
+    }
+
 }

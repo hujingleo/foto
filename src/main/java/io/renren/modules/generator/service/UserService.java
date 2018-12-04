@@ -14,5 +14,7 @@ import java.util.Map;
  */
 public interface UserService extends IService<UserEntity> {
 
+    int updateUser(UserEntity userEntity);
+
 }
 
