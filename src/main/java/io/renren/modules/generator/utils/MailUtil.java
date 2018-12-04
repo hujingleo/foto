@@ -26,10 +26,15 @@ public class MailUtil {
     public static String sendMail(String username) throws MessagingException {
         // 1.创建一个程序与邮件服务器会话对象 Session
         // 创建参数配置, 用于连接邮件服务器的参数配置
-        Properties props = new Properties(); // 参数配置
-        props.setProperty("mail.transport.protocol", "SMTP");// 使用的协议（JavaMail规范要求）
-        props.setProperty("mail.host", "smtp.163.com");// // 发件人的邮箱的 SMTP 服务器地址
-        props.setProperty("mail.smtp.auth", "true");//请求认证，参数名称与具体实现有关 指定验证为true
+
+        Properties javaMailProperties = new Properties();// 参数配置
+        javaMailProperties.setProperty("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+        javaMailProperties.setProperty("mail.smtp.socketFactory.port", "465");
+        javaMailProperties.setProperty("mail.smtp.port", "465");
+
+        javaMailProperties.setProperty("mail.transport.protocol", "SMTP");// 使用的协议（JavaMail规范要求）
+        javaMailProperties.setProperty("mail.host", "smtp.163.com");// // 发件人的邮箱的 SMTP 服务器地址
+        javaMailProperties.setProperty("mail.smtp.auth", "true");//请求认证，参数名称与具体实现有关 指定验证为true
 
         // 创建验证器
         Authenticator auth = new Authenticator() {
@@ -40,7 +45,7 @@ public class MailUtil {
             }
         };
 
-        Session session = Session.getInstance(props, auth);
+        Session session = Session.getInstance(javaMailProperties, auth);
 
         Message message = new MimeMessage(session);
 
