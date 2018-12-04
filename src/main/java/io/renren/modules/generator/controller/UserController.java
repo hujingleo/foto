@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import io.renren.modules.generator.entity.UserEntity;
+import io.renren.modules.generator.entity.CodeEntity;
 import io.renren.modules.generator.service.UserService;
 import io.renren.modules.generator.service.CodeService;
 
@@ -93,15 +94,21 @@ public class UserController {
             return BaseResp.error("用户不存在");
         }
 
+        UserEntity user = userService.selectOne(new EntityWrapper<UserEntity>().eq("username",username));
+
+        if (user != null){
+            return BaseResp.error("用户已存在");
+        }
+
         long time = System.currentTimeMillis();
         Date date = codeEntity.getCreatedTime();
         long codetime = date.getTime();
 
-        if(time - codetime > 60000){
+        if(time - codetime > 300000){
             return BaseResp.error("验证码已过期");
         }
 
-        if (codeEntity.getEmailCode() != emailcode){
+        if (!codeEntity.getEmailCode().equals(emailcode) ){
             return BaseResp.error("验证码错误");
         }
 
@@ -122,8 +129,6 @@ public class UserController {
         userEntity.setPersonalProfile(personalProfile);
 
         userEntity.setCreatedTime(new Date());
-
-        userService.insert(userEntity);
 
         boolean result =  userService.insert(userEntity);
 
@@ -196,7 +201,7 @@ public class UserController {
         }
         String token = JWTUtil.sign(username);
         BaseResp baseResp = new BaseResp();
-        baseResp.setMsg("注册成功");
+        baseResp.setMsg("登录成功");
         baseResp.setData(token);
         return baseResp;
     }
@@ -205,31 +210,29 @@ public class UserController {
      * 忘记密码(通过邮箱验证码修改密码)
      */
     @RequestMapping("/passwordChange")
-    public BaseResp passwordChange(String username,String password) throws MessagingException {
+    public BaseResp passwordChange(String username,String emailcode,String password) throws MessagingException {
 
         if (StringTools.isNullOrEmpty(username)){
             return BaseResp.error("邮箱不能为空");
         }
-
-        String emailcode = MailUtil.sendMail(username);
-
-        CodeEntity codeEntity = codeService.selectOne(new EntityWrapper<CodeEntity>().eq("username",username));
-        if (null==codeEntity){
-            return BaseResp.error("未找到发送验证码记录,请重新发送");
-        }
-        long time = System.currentTimeMillis();
-        Date date = codeEntity.getCreatedTime();
-        long codetime = date.getTime();
-
-        if(time - codetime > 60000){
-            return BaseResp.error("验证码已过期");
-        }
-
         if (StringTools.isNullOrEmpty(emailcode)){
             return BaseResp.error("验证码不能为空");
         }
+        if (StringTools.isNullOrEmpty(password)){
+            return BaseResp.error("密码不能为空");
+        }
 
-        if(codeEntity.getEmailCode() != emailcode){
+        CodeEntity codeEntity = codeService.selectOne(new EntityWrapper<CodeEntity>().eq("username",username));
+
+        long now =System.currentTimeMillis();
+        Date date = codeEntity.getCreatedTime();
+        long codetime = date.getTime();
+
+        if(now - codetime > 300000){
+            return BaseResp.error("验证码已过期");
+        }
+
+        if(!codeEntity.getEmailCode().equals(emailcode) ){
             return BaseResp.error("验证码错误");
         }
 
@@ -242,9 +245,9 @@ public class UserController {
         }
         userEntity.setPassword(password);
 
-        boolean result = userService.update(userEntity,new EntityWrapper<UserEntity>().eq("username",username));
+        boolean result1 = userService.update(userEntity,new EntityWrapper<UserEntity>().eq("username",username));
 
-        if(!result){
+        if(!result1){
             return BaseResp.error("修改密码失败");
         }
 

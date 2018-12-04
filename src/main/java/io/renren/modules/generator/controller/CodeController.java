@@ -9,6 +9,7 @@ import java.util.Map;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import io.renren.modules.generator.utils.BaseResp;
 import io.renren.modules.generator.utils.MailUtil;
+import io.renren.modules.generator.utils.StringTools;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,6 +43,9 @@ public class CodeController {
     @RequestMapping("/sendCode")
     public BaseResp sendCode(String username) throws MessagingException {
 
+        if (StringTools.isNullOrEmpty(username)){
+            return BaseResp.error("邮箱不能为空");
+        }
 
         String emailcode = MailUtil.sendMail(username);
 
@@ -90,11 +94,11 @@ public class CodeController {
         Date date = codeEntity.getCreatedTime();
         long codetime = date.getTime();
 
-        if(time - codetime > 60000){
+        if(time - codetime > 300000){
             return BaseResp.error("验证码已过期");
         }
 
-        if (codeEntity.getEmailCode() != emailcode){
+        if (codeEntity.getEmailCode().equals(emailcode)){
             return BaseResp.error("验证码错误");
         }
 
