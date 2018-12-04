@@ -12,6 +12,7 @@ import io.renren.modules.generator.utils.BaseResp;
 import io.renren.modules.generator.utils.JWTUtil;
 import io.renren.modules.generator.utils.MailUtil;
 import io.renren.modules.generator.utils.StringTools;
+import org.apache.shiro.authz.annotation.RequiresAuthentication;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -65,8 +66,8 @@ public class UserController {
     /**
      * 增加注册用户
      */
-    @RequestMapping("/saveuser")
-    public BaseResp save(String username, String emailcode,String password, String nickname,Integer gender, String avatarUrl, String personalProfile){
+    @RequestMapping("/saveUser")
+    public BaseResp saveUser(String username, String emailcode,String password, String nickname,Integer gender, String avatarUrl, String personalProfile){
 
         if (StringTools.isNullOrEmpty(username)){
             return BaseResp.error("邮箱不能为空");
@@ -130,15 +131,16 @@ public class UserController {
             return BaseResp.error("增加用户失败");
         }
 
-        return BaseResp.ok("增加用户成功");
+        return BaseResp.ok("注册成功");
     }
 
     /**
      * 更新用户信息
      */
-    @RequestMapping("/updateuser")
-    public BaseResp update(String username, String nickname, Integer gender,String avatarUrl, String personalProfile){
-
+    @RequestMapping("/updateUser")
+    @RequiresAuthentication
+    public BaseResp updateUser(HttpServletRequest request, String nickname, Integer gender,String avatarUrl, String personalProfile){
+        String username = JWTUtil.getCurrentUsername(request);
         if (StringTools.isNullOrEmpty(nickname)){
             return BaseResp.error("姓名不能为空");
         }
@@ -189,18 +191,21 @@ public class UserController {
             return BaseResp.error("用户不存在");
         }
 
-        if(userEntity.getPassword() != password){
+        if(!userEntity.getPassword() .equals(password) ){
             return BaseResp.error("密码错误，登录失败");
         }
-        return BaseResp.ok("登录成功");
-
+        String token = JWTUtil.sign(username);
+        BaseResp baseResp = new BaseResp();
+        baseResp.setMsg("注册成功");
+        baseResp.setData(token);
+        return baseResp;
     }
 
     /**
      * 忘记密码(通过邮箱验证码修改密码)
      */
-    @RequestMapping("/passwordchange")
-    public BaseResp change(String username,String password) throws MessagingException {
+    @RequestMapping("/passwordChange")
+    public BaseResp passwordChange(String username,String password) throws MessagingException {
 
         if (StringTools.isNullOrEmpty(username)){
             return BaseResp.error("邮箱不能为空");
@@ -209,7 +214,9 @@ public class UserController {
         String emailcode = MailUtil.sendMail(username);
 
         CodeEntity codeEntity = codeService.selectOne(new EntityWrapper<CodeEntity>().eq("username",username));
-
+        if (null==codeEntity){
+            return BaseResp.error("未找到发送验证码记录,请重新发送");
+        }
         long time = System.currentTimeMillis();
         Date date = codeEntity.getCreatedTime();
         long codetime = date.getTime();
@@ -230,6 +237,9 @@ public class UserController {
 
         UserEntity userEntity = userService.selectOne(new EntityWrapper<UserEntity>().eq("username",username));
 
+        if (null==userEntity){
+            return BaseResp.error("找不到用户名为 : "+username+"的用户");
+        }
         userEntity.setPassword(password);
 
         boolean result = userService.update(userEntity,new EntityWrapper<UserEntity>().eq("username",username));
