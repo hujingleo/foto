@@ -85,6 +85,14 @@ public class CodeController {
 
         CodeEntity codeEntity = codeService.selectOne(new EntityWrapper<CodeEntity>().eq("username",username));
 
+        long time = System.currentTimeMillis();
+        Date date = codeEntity.getCreatedTime();
+        long codetime = date.getTime();
+
+        if(time - codetime > 60000){
+            return BaseResp.error("验证码已过期");
+        }
+
         if (codeEntity.getEmailCode() != emailcode){
             return BaseResp.error("验证码错误");
         }

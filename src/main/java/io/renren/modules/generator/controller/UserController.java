@@ -7,8 +7,11 @@ import java.util.Date;
 import java.util.Map;
 
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
+import io.renren.modules.generator.entity.CodeEntity;
 import io.renren.modules.generator.utils.BaseResp;
 import io.renren.modules.generator.utils.JWTUtil;
+import io.renren.modules.generator.utils.MailUtil;
+import io.renren.modules.generator.utils.StringTools;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,7 +22,9 @@ import org.springframework.web.bind.annotation.RestController;
 
 import io.renren.modules.generator.entity.UserEntity;
 import io.renren.modules.generator.service.UserService;
+import io.renren.modules.generator.service.CodeService;
 
+import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 
 
@@ -35,29 +40,23 @@ import javax.servlet.http.HttpServletRequest;
 public class UserController {
     @Autowired
     private UserService userService;
+    @Autowired
+    private CodeService codeService;
 
-//    /**
-//     * 列表
-//     */
-//    @RequestMapping("/list")
-//    @RequiresPermissions("generator:user:list")
-//    public R list(@RequestParam Map<String, Object> params){
-//        PageUtils page = userService.queryPage(params);
-//
-//        return R.ok().put("page", page);
-//    }
-//
-//
     /**
      * 查找用户信息
      */
     @RequestMapping("/info")
     public BaseResp info(String username){
 
+        if(StringTools.isNullOrEmpty(username)){
+            return BaseResp.error("请输入用户名");
+        }
+
         UserEntity userEntity = userService.selectOne(new EntityWrapper<UserEntity>().eq("username",username));
 
         if(null == userEntity){
-            BaseResp.error("没有该用户");
+            return BaseResp.error("没有该用户");
         }
 
         return BaseResp.ok(userEntity);
@@ -66,16 +65,56 @@ public class UserController {
     /**
      * 增加注册用户
      */
-    @RequestMapping("/save")
-    public BaseResp save(String username, String password, String nickname, String avatarUrl, String personalProfile){
+    @RequestMapping("/saveuser")
+    public BaseResp save(String username, String emailcode,String password, String nickname,Integer gender, String avatarUrl, String personalProfile){
+
+        if (StringTools.isNullOrEmpty(username)){
+            return BaseResp.error("邮箱不能为空");
+        }
+        if (StringTools.isNullOrEmpty(emailcode)){
+            return BaseResp.error("验证码不能为空");
+        }
+        if (StringTools.isNullOrEmpty(password)){
+            return BaseResp.error("密码不能为空");
+        }
+        if (StringTools.isNullOrEmpty(nickname)){
+            return BaseResp.error("邮箱不能为空");
+        }
+        if (gender==null){
+            return BaseResp.error("性别不能为空");
+        }
+        if (StringTools.isNullOrEmpty(avatarUrl)){
+            return BaseResp.error("头像不能为空");
+        }
+        CodeEntity codeEntity = codeService.selectOne(new EntityWrapper<CodeEntity>().eq("username",username));
+
+        if(codeEntity == null){
+            return BaseResp.error("用户不存在");
+        }
+
+        long time = System.currentTimeMillis();
+        Date date = codeEntity.getCreatedTime();
+        long codetime = date.getTime();
+
+        if(time - codetime > 60000){
+            return BaseResp.error("验证码已过期");
+        }
+
+        if (codeEntity.getEmailCode() != emailcode){
+            return BaseResp.error("验证码错误");
+        }
 
         UserEntity userEntity = new UserEntity();
 
         userEntity.setUsername(username);
 
+        password = StringTools.Encrypt(password,null);
+
         userEntity.setPassword(password);
 
         userEntity.setNickname(nickname);
+
+        userEntity.setGender(gender);
 
         userEntity.setAvatarUrl(avatarUrl);
 
@@ -97,8 +136,18 @@ public class UserController {
     /**
      * 更新用户信息
      */
-    @RequestMapping("/update")
-    public BaseResp update(String username, String nickname, String avatarUrl, String personalProfile){
+    @RequestMapping("/updateuser")
+    public BaseResp update(String username, String nickname, Integer gender,String avatarUrl, String personalProfile){
+
+        if (StringTools.isNullOrEmpty(nickname)){
+            return BaseResp.error("姓名不能为空");
+        }
+        if (gender==null){
+            return BaseResp.error("性别不能为空");
+        }
+        if (StringTools.isNullOrEmpty(avatarUrl)){
+            return BaseResp.error("头像不能为空");
+        }
 
         UserEntity userEntity = userService.selectOne(new EntityWrapper<UserEntity>().eq("username",username));
 
@@ -120,18 +169,77 @@ public class UserController {
     }
 
     /**
-     * 删除用户
+     * 登录
      */
-    @RequestMapping("/delete")
-    public BaseResp delete(String username){
+    @RequestMapping("/login")
+    public BaseResp login(String username,String password){
 
-        boolean result = userService.delete(new EntityWrapper<UserEntity>().eq("username",username));
-
-        if(!result){
-            return BaseResp.error("删除用户失败");
+        if (StringTools.isNullOrEmpty(username)){
+            return BaseResp.error("邮箱不能为空");
+        }
+        if (StringTools.isNullOrEmpty(password)){
+            return BaseResp.error("密码不能为空");
         }
 
-        return BaseResp.ok("删除用户成功");
+        password = StringTools.Encrypt(password,null);
+
+        UserEntity userEntity = userService.selectOne(new EntityWrapper<UserEntity>().eq("username",username));
+
+        if(userEntity == null){
+            return BaseResp.error("用户不存在");
+        }
+
+        if(userEntity.getPassword() != password){
+            return BaseResp.error("密码错误，登录失败");
+        }
+        return BaseResp.ok("登录成功");
+
+    }
+
+    /**
+     * 忘记密码(通过邮箱验证码修改密码)
+     */
+    @RequestMapping("/passwordchange")
+    public BaseResp change(String username,String password) throws MessagingException {
+
+        if (StringTools.isNullOrEmpty(username)){
+            return BaseResp.error("邮箱不能为空");
+        }
+
+        String emailcode = MailUtil.sendMail(username);
+
+        CodeEntity codeEntity = codeService.selectOne(new EntityWrapper<CodeEntity>().eq("username",username));
+
+        long time = System.currentTimeMillis();
+        Date date = codeEntity.getCreatedTime();
+        long codetime = date.getTime();
+
+        if(time - codetime > 60000){
+            return BaseResp.error("验证码已过期");
+        }
+
+        if (StringTools.isNullOrEmpty(emailcode)){
+            return BaseResp.error("验证码不能为空");
+        }
+
+        if(codeEntity.getEmailCode() != emailcode){
+            return BaseResp.error("验证码错误");
+        }
+
+        password = StringTools.Encrypt(password,null);
+
+        UserEntity userEntity = userService.selectOne(new EntityWrapper<UserEntity>().eq("username",username));
+
+        userEntity.setPassword(password);
+
+        boolean result = userService.update(userEntity,new EntityWrapper<UserEntity>().eq("username",username));
+
+        if(!result){
+            return BaseResp.error("修改密码失败");
+        }
+
+        return BaseResp.ok("修改密码成功");
+
     }
 
 }

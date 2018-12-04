@@ -15,5 +15,26 @@
         <result property="updatedTime" column="updated_time"/>
     </resultMap>
 
+    <select id="getActivityInfo" resultType="io.renren.modules.generator.entity.ActivityEntity">
+select
+    id,
+    creator,
+    activity_title,
+    activity_content,
+    start_time,
+    end_time,
+    created_time
+FROM
+	tb_activity
+    LIMIT #{start},#{pageSize}
+</select>
+
+    <select id="count"  resultType="java.lang.Integer">
+SELECT
+	count(*)
+FROM
+	tb_activity
+	</select>
+
 
 </mapper>

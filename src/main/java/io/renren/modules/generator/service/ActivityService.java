@@ -3,6 +3,7 @@ package io.renren.modules.generator.service;
 import com.baomidou.mybatisplus.service.IService;
 import io.renren.modules.generator.entity.ActivityEntity;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -15,5 +16,7 @@ import java.util.Map;
 public interface ActivityService extends IService<ActivityEntity> {
 
 
+    List<ActivityEntity> getActivityInfo(Integer pageSize , Integer pageIndex, Integer start);
+    Integer count();
 }
 

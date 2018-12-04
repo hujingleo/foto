@@ -7,6 +7,7 @@ import java.util.Map;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import io.renren.modules.generator.entity.UserEntity;
 import io.renren.modules.generator.utils.BaseResp;
+import io.renren.modules.generator.utils.StringTools;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -42,6 +43,8 @@ public class UserDataController {
 
         UserDataEntity userDataEntity = new UserDataEntity();
 
+        userDataEntity.setUsername(username);
+
         userDataEntity.setDataType(dataType);
 
         userDataEntity.setDataTitle(dataTitle);
@@ -65,6 +68,13 @@ public class UserDataController {
     @RequestMapping("/update")
     public BaseResp update(String username, String dataType, String dataTitle, String dataContent){
 
+        if(StringTools.isNullOrEmpty(username)){
+            return BaseResp.error("请输入用户名");
+        }
+        if (StringTools.isNullOrEmpty(dataType)){
+            return  BaseResp.error("信息类型不能为空");
+        }
+
         UserDataEntity userDataEntity = userDataService.selectOne(new EntityWrapper<UserDataEntity>().eq("username",username));
 
         userDataEntity.setDataType(dataType);
@@ -84,6 +94,20 @@ public class UserDataController {
         return BaseResp.ok("更新用户信息成功");
     }
 
+    /**
+     * 删除用户信息
+     */
+    @RequestMapping("/deleteuserdata")
+    public BaseResp delete(int id){
+
+        boolean result =  userDataService.delete(new EntityWrapper<UserDataEntity>().eq("id",id));
+
+        if (!result){
+            return BaseResp.error("更新用户信息失败");
+        }
+
+        return BaseResp.ok("更新用户信息成功");
+    }
 //    /**
 //     * 列表
 //     */

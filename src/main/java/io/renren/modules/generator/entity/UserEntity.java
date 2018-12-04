@@ -37,7 +37,7 @@ public class UserEntity implements Serializable {
 	/**
 	 * 
 	 */
-	private int gender;
+	private Integer gender;
 	/**
 	 *
 	 */
@@ -163,4 +163,6 @@ public class UserEntity implements Serializable {
 	public Date getUpdatedTime() {
 		return updatedTime;
 	}
-}
+
+	}
+

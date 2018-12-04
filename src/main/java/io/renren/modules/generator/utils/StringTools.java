@@ -1,20 +1,28 @@
 package io.renren.modules.generator.utils;
 
-import org.apache.commons.codec.binary.Base64;
+import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.net.URLEncoder;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
+import java.text.DecimalFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Random;
+import java.util.ResourceBundle;
+import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.crypto.Cipher;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.DESKeySpec;
-import java.io.UnsupportedEncodingException;
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-import java.net.URLEncoder;
-import java.security.SecureRandom;
-import java.text.DecimalFormat;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * 字符串工具类
@@ -26,7 +34,7 @@ public class StringTools {
     public static String REGEX = "','";
     private static final String PASSWORD_CRYPT_KEY = "rsclouds";
     private final static String DES = "DES";
-
+    private static final char[] HEX_DIGITS = new char[]{'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f'};
     public StringTools() {
 
     }
@@ -539,7 +547,7 @@ public class StringTools {
 
         for (int n = 0; n < b.length; n++) {
 
-            stmp = (Integer.toHexString(b[n] & 0XFF));
+            stmp = (java.lang.Integer.toHexString(b[n] & 0XFF));
 
             if (stmp.length() == 1)
 
@@ -602,7 +610,36 @@ public class StringTools {
         // 正式执行加密操作
         return cipher.doFinal(src);
     }
+    public static String Encrypt(String strSrc, String encName) {
+        MessageDigest md = null;
+        String strDes = null;
+        byte[] bt = strSrc.getBytes();
 
+        try {
+            if (encName == null || encName.equals("")) {
+                encName = "MD5";
+            }
+
+            md = MessageDigest.getInstance(encName);
+            md.update(bt);
+            strDes = getFormattedText(md.digest());
+            return strDes;
+        } catch (NoSuchAlgorithmException var6) {
+            System.out.println("Invalid algorithm.");
+            return null;
+        }
+    }
+    private static String getFormattedText(byte[] bytes) {
+        int len = bytes.length;
+        StringBuilder buf = new StringBuilder(len * 2);
+
+        for(int j = 0; j < len; ++j) {
+            buf.append(HEX_DIGITS[bytes[j] >> 4 & 15]);
+            buf.append(HEX_DIGITS[bytes[j] & 15]);
+        }
+
+        return buf.toString();
+    }
     /**
      * 解密
      *
@@ -897,10 +934,6 @@ public class StringTools {
         } catch (Exception e) {
             return phone;
         }
-    }
-    //base64字符串转byte[]
-    public static byte[] base64String2ByteFun(String base64Str){
-        return Base64.decodeBase64(base64Str);
     }
 
 }
