@@ -42,6 +42,7 @@ public class CodeController {
     @RequestMapping("/sendCode")
     public BaseResp sendCode(String username) throws MessagingException {
 
+
         String emailcode = MailUtil.sendMail(username);
 
         CodeEntity codeEntity = codeService.selectOne(new EntityWrapper<CodeEntity>().eq("username",username));
