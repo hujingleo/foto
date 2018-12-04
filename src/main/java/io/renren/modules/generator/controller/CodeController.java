@@ -39,7 +39,7 @@ public class CodeController {
     /**
      * 发送邮箱验证码
      */
-    @RequestMapping("/sendcode")
+    @RequestMapping("/sendCode")
     public BaseResp send(String username) throws MessagingException {
 
         String emailcode = MailUtil.sendMail(username);
