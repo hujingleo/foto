@@ -1,25 +1,26 @@
 package io.renren.modules.generator.controller;
 
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
+import com.alibaba.fastjson.JSONObject;
+import io.renren.modules.generator.utils.HttpClientUtil;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class Test {
 
 
     public static void main(String[] args) {
-
-        Date date = new Date();
-        SimpleDateFormat sdf = new SimpleDateFormat("yyMMddHHmm");
-        try {
-            Date d = sdf.parse("1603190000");
-            System.out.println(d.getTime());
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
-
+        String url = "http://120.79.227.108:8083/userData/updateUserData";
+        //直接调用的GET ,不需要header
+        String result = HttpClientUtil.getGetResponse(url);
+        String token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE4NTk1MzI0NTksInVzZXJuYW1lIjoiMTMzOTA2OTI4MkBxcS5jb20ifQ.FwR7fQtB7pUUFOE_j1HepN8Wsl-6JoYVsEDDTfOuSps";
+        //直接调用的GET,需要header
+        Map<String , String> headerMap = new HashMap<>();
+        headerMap.put("token",token);
+        String result2 = HttpClientUtil.getGetResponse(url,headerMap);
+        System.out.println(result);
+        System.out.println(result2);
     }
 }
 //        Calendar calendar = Calendar.getInstance();
