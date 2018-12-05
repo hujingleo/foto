@@ -153,23 +153,6 @@ public class UserController {
             userEntity.setUsername(username);
           int result =userService.updateUser(userEntity);
 
-//        userEntity.setNickname(nickname);
-//
-//        userEntity.setGender(gender);
-//
-//        userEntity.setAvatarUrl(avatarUrl);
-//
-//        userEntity.setPersonalProfile(personalProfile);
-//
-//        userEntity.setUpdatedTime(new Date());
-
-//        boolean result =  userService.update(userEntity,new EntityWrapper<UserEntity>().eq("username",username));
-//
-//        if (!result){
-//            return BaseResp.error("更新用户信息失败");
-//        }
-//
-//        return BaseResp.ok("更新用户信息成功");
         if (result==1){
             return BaseResp.ok("更新用户信息成功");
         }

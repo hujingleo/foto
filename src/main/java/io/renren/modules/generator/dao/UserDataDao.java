@@ -13,5 +13,7 @@ import org.apache.ibatis.annotations.Mapper;
  */
 @Mapper
 public interface UserDataDao extends BaseMapper<UserDataEntity> {
-	
+
+    int updateUserData (UserDataEntity userDataEntity);
+
 }

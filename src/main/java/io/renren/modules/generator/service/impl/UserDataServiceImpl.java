@@ -16,4 +16,12 @@ import io.renren.modules.generator.service.UserDataService;
 public class UserDataServiceImpl extends ServiceImpl<UserDataDao, UserDataEntity> implements UserDataService {
 
 
+    @Override
+    public int updateUserData (UserDataEntity userDataEntity){
+
+        int result = baseMapper.updateUserData(userDataEntity);
+
+        return result;
+
+    }
 }

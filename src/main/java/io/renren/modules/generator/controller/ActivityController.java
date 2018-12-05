@@ -33,15 +33,19 @@ public class ActivityController {
     /**
      * 获取活动列表
      */
-    @RequestMapping("/list")
-    public BaseResp list(Integer pageSize ,Integer pageIndex,Integer start,Integer count){
+    @RequestMapping("/listActivity")
+    public BaseResp listActivity(Integer pageSize ,Integer pageIndex,Integer start,Integer count){
 
-        if (pageSize == 0 || pageSize == null){
-            pageSize =10;
-        }
-        if(pageIndex ==0 || pageIndex == null){
-            pageIndex = 1;
-        }
+       try {
+           if (pageSize == null || pageSize == 0 ) {
+               pageSize = 10;
+           }
+           if (pageIndex == null|| pageIndex == 0 ){
+               pageIndex = 1;
+           }
+       }catch (Exception e ){
+           e.printStackTrace();
+       }
 
         count = activityService.count();
         start = (pageIndex-1) * pageSize;
@@ -64,8 +68,8 @@ public class ActivityController {
     /**
      * 新增活动
      */
-    @RequestMapping("/save")
-    public BaseResp save(String creator,String activityTitle,String activityContent,Long startTime,Long endTime){
+    @RequestMapping("/saveActivity")
+    public BaseResp saveActivity(String creator,String activityTitle,String activityContent,Long startTime,Long endTime){
 
         if (StringTools.isNullOrEmpty(creator)){
             return BaseResp.error("创建人不能为空");
@@ -113,8 +117,8 @@ public class ActivityController {
     /**
      * 查找活动信息
      */
-    @RequestMapping("/info")
-    public BaseResp info(int id){
+    @RequestMapping("/activityInfo")
+    public BaseResp activityInfo(int id){
 
         ActivityEntity activity = activityService.selectById(id);
 

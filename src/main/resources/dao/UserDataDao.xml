@@ -14,5 +14,20 @@
         <result property="updatedTime" column="updated_time"/>
     </resultMap>
 
+    <update id="updateUserData" parameterType="io.renren.modules.generator.entity.UserDataEntity">
+        update tb_user
+        <set>
+            <if test="dataType!=null and dataType!=''">
+                data_type=#{dataType},
+            </if>
+            <if test="dataTitle!=null and dataTitle!=''">
+                data_title=#{dataTitle},
+            </if>
+            <if test="dataContent!=null and dataContent!=''">
+                data_content=#{dataContent},
+            </if>
+        </set>
+        where username=#{username}
+    </update>
 
 </mapper>

@@ -7,6 +7,7 @@ import java.util.Map;
 import com.baomidou.mybatisplus.mapper.EntityWrapper;
 import io.renren.modules.generator.entity.UserEntity;
 import io.renren.modules.generator.utils.BaseResp;
+import io.renren.modules.generator.utils.JWTUtil;
 import io.renren.modules.generator.utils.StringTools;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 import io.renren.modules.generator.entity.UserDataEntity;
 import io.renren.modules.generator.service.UserDataService;
 
+import javax.servlet.http.HttpServletRequest;
 
 
 /**
@@ -29,17 +31,29 @@ import io.renren.modules.generator.service.UserDataService;
  * @date 2018-11-27 09:51:20
  */
 @RestController
-@RequestMapping("/userdata")
+@RequestMapping("/userData")
 public class UserDataController {
     @Autowired
     private UserDataService userDataService;
 
 
     /**
-     * 新增用户信息
+     * 新增用户资料
      */
-    @RequestMapping("/saveuserdata")
-    public BaseResp save(String username, String dataType, String dataTitle, String dataContent){
+    @RequestMapping("/saveUserData")
+    public BaseResp saveUserData(HttpServletRequest request, String dataType, String dataTitle, String dataContent){
+
+        String username = JWTUtil.getCurrentUsername(request);
+
+        if (StringTools.isNullOrEmpty(dataType)){
+            return BaseResp.error("用户资料类型不能为空");
+        }
+        if (StringTools.isNullOrEmpty(dataTitle)){
+            return BaseResp.error("用户资料标题不能为空");
+        }
+        if (StringTools.isNullOrEmpty(dataContent)){
+            return BaseResp.error("用户资料内容不能为空");
+        }
 
         UserDataEntity userDataEntity = new UserDataEntity();
 
@@ -56,57 +70,44 @@ public class UserDataController {
         boolean result =  userDataService.insert(userDataEntity);
 
         if (!result){
-            return BaseResp.error("更新用户信息失败");
+            return BaseResp.error("新增用户资料失败");
         }
 
-        return BaseResp.ok("更新用户信息成功");
+        return BaseResp.ok("新增用户资料成功");
     }
 
     /**
-     * 更新用户信息
+     * 更新用户资料
      */
-    @RequestMapping("/update")
-    public BaseResp update(String username, String dataType, String dataTitle, String dataContent){
+    @RequestMapping("/updateUserData")
+    public BaseResp updateUserData(HttpServletRequest request,@RequestBody UserDataEntity userDataEntity){
 
-        if(StringTools.isNullOrEmpty(username)){
-            return BaseResp.error("请输入用户名");
+        if (null == userDataEntity){
+            return BaseResp.error("数据为空");
         }
-        if (StringTools.isNullOrEmpty(dataType)){
-            return  BaseResp.error("信息类型不能为空");
+        String username = JWTUtil.getCurrentUsername(request);
+        userDataEntity.setUsername(username);
+        int result =userDataService.updateUserData(userDataEntity);
+
+        if (result==1){
+            return BaseResp.ok("更新用户资料成功");
         }
-
-        UserDataEntity userDataEntity = userDataService.selectOne(new EntityWrapper<UserDataEntity>().eq("username",username));
-
-        userDataEntity.setDataType(dataType);
-
-        userDataEntity.setDataTitle(dataTitle);
-
-        userDataEntity.setDataContent(dataContent);
-
-        userDataEntity.setUpdatedTime(new Date());
-
-        boolean result =  userDataService.update(userDataEntity,new EntityWrapper<UserDataEntity>().eq("username",username));
-
-        if (!result){
-            return BaseResp.error("更新用户信息失败");
-        }
-
-        return BaseResp.ok("更新用户信息成功");
+        return BaseResp.error("更新用户资料失败");
     }
 
     /**
      * 删除用户信息
      */
     @RequestMapping("/deleteuserdata")
-    public BaseResp delete(int id){
+    public BaseResp deleteUserData(int id){
 
         boolean result =  userDataService.delete(new EntityWrapper<UserDataEntity>().eq("id",id));
 
         if (!result){
-            return BaseResp.error("更新用户信息失败");
+            return BaseResp.error("删除用户信息失败");
         }
 
-        return BaseResp.ok("更新用户信息成功");
+        return BaseResp.ok("删除用户信息成功");
     }
 //    /**
 //     * 列表
