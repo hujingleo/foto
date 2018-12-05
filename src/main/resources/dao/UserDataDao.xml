@@ -27,7 +27,7 @@
                 data_content=#{dataContent}
             </if>
         </set>
-        where username=#{username}
+        where id=#{id}
     </update>
 
 </mapper>

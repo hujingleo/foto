@@ -84,7 +84,6 @@ public class UserDataController {
             return BaseResp.error("数据为空");
         }
         String username = JWTUtil.getCurrentUsername(request);
-        userDataEntity.setUsername(username);
         int result =userDataService.updateUserData(userDataEntity);
 
         if (result==1){
