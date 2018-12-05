@@ -69,13 +69,16 @@ public class ActivityController {
      * 新增活动
      */
     @RequestMapping("/saveActivity")
-    public BaseResp saveActivity(String creator,String activityTitle,String activityContent,Long startTime,Long endTime){
+    public BaseResp saveActivity(String creator,String activityTitle,String activityAddress,String activityContent,Long startTime,Long endTime){
 
         if (StringTools.isNullOrEmpty(creator)){
             return BaseResp.error("创建人不能为空");
         }
         if (StringTools.isNullOrEmpty(activityTitle)){
             return BaseResp.error("活动标题不能为空");
+        }
+        if (StringTools.isNullOrEmpty(activityAddress)){
+            return BaseResp.error("活动地点不能为空");
         }
         if (StringTools.isNullOrEmpty(activityContent)){
             return BaseResp.error("活动内容不能为空");
@@ -96,6 +99,8 @@ public class ActivityController {
         activity.setCreator(creator);
 
         activity.setActivityTitle(activityTitle);
+
+        activity.setActivityAddress(activityAddress);
 
         activity.setActivityContent(activityContent);
 
@@ -132,8 +137,8 @@ public class ActivityController {
     /**
      * 更改活动信息
      */
-    @RequestMapping("/update")
-    public BaseResp update(int id,String creator,String activityTitle,String activityContent,Long startTime,Long endTime){
+    @RequestMapping("/updateActivity")
+    public BaseResp updateActivity(int id,String creator,String activityTitle,String activityContent,Long startTime,Long endTime){
 
         if (StringTools.isNullOrEmpty(creator)){
             return BaseResp.error("创建人不能为空");

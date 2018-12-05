@@ -15,7 +15,7 @@
     </resultMap>
 
     <update id="updateUserData" parameterType="io.renren.modules.generator.entity.UserDataEntity">
-        update tb_user
+        update tb_user_data
         <set>
             <if test="dataType!=null and dataType!=''">
                 data_type=#{dataType},
@@ -24,7 +24,7 @@
                 data_title=#{dataTitle},
             </if>
             <if test="dataContent!=null and dataContent!=''">
-                data_content=#{dataContent},
+                data_content=#{dataContent}
             </if>
         </set>
         where username=#{username}

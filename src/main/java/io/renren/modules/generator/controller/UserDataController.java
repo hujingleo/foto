@@ -48,9 +48,7 @@ public class UserDataController {
         if (StringTools.isNullOrEmpty(dataType)){
             return BaseResp.error("用户资料类型不能为空");
         }
-        if (StringTools.isNullOrEmpty(dataTitle)){
-            return BaseResp.error("用户资料标题不能为空");
-        }
+
         if (StringTools.isNullOrEmpty(dataContent)){
             return BaseResp.error("用户资料内容不能为空");
         }
@@ -98,7 +96,7 @@ public class UserDataController {
     /**
      * 删除用户信息
      */
-    @RequestMapping("/deleteuserdata")
+    @RequestMapping("/deleteUserData")
     public BaseResp deleteUserData(int id){
 
         boolean result =  userDataService.delete(new EntityWrapper<UserDataEntity>().eq("id",id));

@@ -33,6 +33,10 @@ public class ActivityEntity implements Serializable {
 	/**
 	 * 
 	 */
+	private String activityAddress;
+	/**
+	 *
+	 */
 	private String activityContent;
 	/**
 	 * 
@@ -89,6 +93,18 @@ public class ActivityEntity implements Serializable {
 	}
 	/**
 	 * 设置：
+	 */
+	public void setActivityAddress(String activityAddress) {
+		this.activityAddress = activityAddress;
+	}
+	/**
+	 * 获取：
+	 */
+	public String getActivityAddress() {
+		return activityAddress;
+	}
+	/**
+	 * 获取：
 	 */
 	public void setActivityContent(String activityContent) {
 		this.activityContent = activityContent;

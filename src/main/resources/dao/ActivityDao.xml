@@ -8,6 +8,7 @@
         <result property="id" column="id"/>
         <result property="creator" column="creator"/>
         <result property="activityTitle" column="activity_title"/>
+        <result property="activityAddress" column="activity_address"/>
         <result property="activityContent" column="activity_content"/>
         <result property="startTime" column="start_time"/>
         <result property="endTime" column="end_time"/>

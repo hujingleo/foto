@@ -194,7 +194,7 @@ public class UserController {
      * 忘记密码(通过邮箱验证码修改密码)
      */
     @RequestMapping("/passwordChange")
-    public BaseResp passwordChange(String username,String emailcode,String password) throws MessagingException {
+    public BaseResp passwordChange(String username,String emailcode,String password){
 
         if (StringTools.isNullOrEmpty(username)){
             return BaseResp.error("邮箱不能为空");
